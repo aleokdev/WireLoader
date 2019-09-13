@@ -1,0 +1,43 @@
+WIRELOADER PROTOCOL
+port: 3200
+ops:
+  retrieve
+    client -> server
+    servers must return a message containing a `prg` payload.
+  prg <uid> <name> <latest version> <size> <author>
+    server -> client
+    contains basic information about a program.
+    sent when clients broadcast `retrieve`, used for displaying the program list.
+    if the server has no binaries for the program, the version is set to be
+    "_NOBIN".
+  prgdesc <uid>
+    client -> server
+    Requests the server to return a `prgdesc` op containing a program's
+    description.
+  prgdesc <uid> <description>
+    server -> client
+    Contains the description for a program. Sent when a client sends an
+    appropiate `prgdesc` op.
+  prgvers <uid>
+    client -> server
+    Requests the server to send all `prgver` ops available for a program.
+  prgver <uid> <name> <size>
+    server -> client
+    Contains information about a specific program version.
+  prgdl <uid> <version>
+    client -> server
+    Requests a program binary. Server will respond with a bunch of `prgdata`
+    packets.
+  prgfile <uid> <path>
+    server -> client
+    Orders the client to create a file at the path given to accomodate all the
+    `prgdata` packets that come next.
+  prgdata <uid> <binary data>
+    server -> client
+    Communicates a certain file data to the client. Must be done after `prgfile`
+    The data will be placed at the end of the last file communicated via
+    `prgfile`.
+  prgdend <uid>
+    server -> client
+    Establishes the end of a prgfile-prgdata sequence. If this is sent, it means
+    that the program has been fully sent.
